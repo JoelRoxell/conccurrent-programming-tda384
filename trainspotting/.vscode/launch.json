@@ -22,7 +22,7 @@
       "console": "internalConsole",
       "stopOnEntry": false,
       "mainClass": "se.chalmers.train.TrainApplication",
-      "args": "Lab1.map 5 0",
+      "args": "test.map 5 5",
       "projectName": "train"
     },
     {

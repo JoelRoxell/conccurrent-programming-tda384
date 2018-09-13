@@ -1,92 +1,82 @@
 package se.chalmers.train;
 
+import java.util.concurrent.*;
+import java.util.*;
+import java.awt.*;
+
 import se.chalmers.train.TSim.*;
 
 public class Train implements Runnable {
-    private int trainId;
-    private TSimInterface tsi;
+
+    private int id;
     private int speed;
-    private String color;
+    private ArrayList<Section> map;
+    private TSimInterface tsi;
 
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN = "\u001B[36m";
-
-    public Train(int trainId, TSimInterface tsi, int startingSpeed, String color) {
-        this.trainId = trainId;
+    public Train(int id, int speed, ArrayList<Section> map, TSimInterface tsi) {
+        this.id = id;
+        this.speed = speed;
+        this.map = map;
         this.tsi = tsi;
-        this.setColor(color);
-        this.setSpeed(startingSpeed);
     }
 
-    /**
-     * @return the color
-     */
-    public String getColor() {
-        return color;
-    }
-
-    /**
-     * @param color the color to set
-     */
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    /**
-     * @return the speed
-     */
-    public int getSpeed() {
-        return speed;
-    }
-
-    /**
-     * @param speed the speed to set
-     */
-    public void setSpeed(int speed) {
-        try {
-            if (this.tsi == null) {
-                throw new Exception("tsi (TSimInterface) must be configured for the Train before a speed can be set.");
-            }
-
-            this.speed = speed;
-            this.tsi.setSpeed(this.trainId, this.speed);
-        } catch (CommandException err) {
-            err.printStackTrace();
-        } catch (Exception err) {
-            err.printStackTrace();
-        }
-    }
-
-    public void stop() {
-        this.setSpeed(0);
-    }
-
-    public void start(int speed) throws CommandException {
-        this.setSpeed(speed);
-    }
-
-    @Override
     public void run() {
-        this.print(String.format("Thread controlling: %d started with speed %d", this.trainId, this.speed));
-
-        try {
-            while (true) {
-                this.print("wating for sensor event...");
-
-                SensorEvent x = (SensorEvent) this.tsi.getSensor(trainId);
-
-                System.out.println(x.getTrainId() + x.getStatus());
+        while (true) {
+            try {
+                SensorEvent event = tsi.getSensor(id);
+                Section location = getSection(map, event);
+                if (location != null)
+                    resolve(location, event);
+            } catch (InterruptedException | CommandException e) {
+                e.printStackTrace();
+                System.exit(1);
             }
-        } catch (CommandException err) {
-            err.printStackTrace();
-        } catch (InterruptedException err) {
-            err.printStackTrace();
         }
     }
 
-    private void print(String message) {
-        System.out.format("%s train [%s] %s %s \n", this.color, this.trainId, Train.ANSI_RESET, message);
+    private Section getSection(ArrayList<Section> map, SensorEvent event)
+            throws CommandException, InterruptedException {
+        Point sensor = new Point(event.getXpos(), event.getYpos());
+        for (Section s : map) {
+            if (s.getSensors().contains(sensor))
+                return s;
+        }
+        return null;
     }
+
+    private void resolve(Section section, SensorEvent event) throws InterruptedException, CommandException {
+        Semaphore sem = section.getSemaphore();
+        Point sen = new Point(event.getXpos(), event.getYpos());
+        Point swi = section.getSwitch(sen);
+
+        if (event.getStatus() == SensorEvent.ACTIVE) {
+            if (sem.tryAcquire()) {
+                section.setTrain(this);
+                System.out.println("semaphore acquired");
+                // tsi.setSwitch(swi.x, swi.y, TSimInterface.SWITCH_RIGHT);
+            } else if (!sem.tryAcquire() && section.getTrain().equals(this)) {
+                sem.release();
+                System.out.println("semaphore released");
+            } else if (!sem.tryAcquire() && section.getType() == Intersection.FORK) {
+                // tsi.setSwitch(swi.x, swi.y, TSimInterface.SWITCH_LEFT);
+                System.out.println("detour selected");
+            } else {
+                System.out.println("stopped");
+                stop();
+                sem.acquire();
+                section.setTrain(this);
+                setSpeed(speed);
+            }
+        }
+    }
+
+    private void setSpeed(int speed) throws CommandException, InterruptedException {
+        this.speed = speed;
+        tsi.setSpeed(this.id, this.speed);
+    }
+
+    private void stop() throws CommandException, InterruptedException {
+        tsi.setSpeed(this.id, 0);
+    }
+
 }
