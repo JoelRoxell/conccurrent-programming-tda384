@@ -1,44 +1,45 @@
 package se.chalmers.train;
 
-import java.util.concurrent.*;
-import java.util.*;
-import java.awt.*;
-
 public class Section {
 
-    private Semaphore semaphore;
-    private Map<Point, Point> sensors;
-    private Intersection type;
-    private Train train = null;
+    private boolean forked;
+    private Train train;
 
-    public Section(Semaphore semaphore, Map<Point, Point> sensors, Intersection type) {
-        this.semaphore = semaphore;
-        this.sensors = sensors;
-        this.type = type;
+    public Section(boolean forked) {
+        this.forked = forked;
     }
 
+    /**
+     * Stores the train currently possesing the section.
+     * 
+     * @param train
+     * 
+     */
     public void setTrain(Train train) {
         this.train = train;
     }
 
-    public Train getTrain() {
-        return train;
+    /**
+     * Checks wheater the given train is in the section.
+     * 
+     * @param train
+     * @return true if yes, false otherwise
+     * 
+     */
+    public boolean hasTrain(Train train) {
+        if (this.train.equals(train))
+            return true;
+        return false;
     }
 
-    public Intersection getType() {
-        return type;
-    }
-
-    public Semaphore getSemaphore() {
-        return semaphore;
-    }
-
-    public Set<Point> getSensors() {
-        return sensors.keySet();
-    }
-
-    public Point getSwitch(Point sensor) {
-        return sensors.get(sensor);
+    /**
+     * States whether this section offers a detour.
+     * 
+     * @return true if yes, false otherwise
+     * 
+     */
+    public boolean forked() {
+        return forked;
     }
 
 }
