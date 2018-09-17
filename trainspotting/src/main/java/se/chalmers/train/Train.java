@@ -12,14 +12,14 @@ public class Train implements Runnable {
     private int speed;
 
     private ArrayList<Semaphore> acquired = new ArrayList<Semaphore>();
+
     private ArrayList<Semaphore> semaphores;
     private Map<Point, Semaphore[]> sensors;
     private Map<Point, Point> switches;
-
     private TSimInterface tsi;
 
-    public Train(int id, int speed, int sem, Semaphore[] sems, Map<Point, Semaphore[]> sens, Map<Point, Point> switches,
-            TSimInterface tsi) {
+    public Train(int id, int speed, int start_point, Semaphore[] sems, Map<Point, Semaphore[]> sens,
+            Map<Point, Point> switches, TSimInterface tsi) {
 
         this.semaphores = new ArrayList<>(Arrays.asList(sems));
 
@@ -30,8 +30,8 @@ public class Train implements Runnable {
         this.tsi = tsi;
 
         try {
-            sems[sem].acquire();
-            acquired.add(sems[sem]);
+            sems[start_point].acquire();
+            acquired.add(sems[start_point]);
         } catch (InterruptedException e) {
             e.printStackTrace();
             System.exit(1);
