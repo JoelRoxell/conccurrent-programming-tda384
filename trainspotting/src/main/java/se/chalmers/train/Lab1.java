@@ -15,13 +15,13 @@ public class Lab1 {
     try {
       // Section 1
       Sensor s1 = new Sensor(5, 13, SwitchDirection.SWTICH_SOUTH_LEFT);
-      Sensor s2 = new Sensor(5, 11, SwitchDirection.SWTICH_SOUTH_LEFT);
+      Sensor s2 = new Sensor(5, 11, SwitchDirection.SWTICH_SOUTH_RIGHT);
       ArrayList<Sensor> southSensors = new ArrayList<>();
       southSensors.add(s1);
       southSensors.add(s2);
 
-      Sensor s3 = new Sensor(5, 10, SwitchDirection.SWTICH_SOUTH_LEFT);
-      Sensor s4 = new Sensor(5, 9, SwitchDirection.SWTICH_SOUTH_LEFT);
+      Sensor s3 = new Sensor(5, 10, SwitchDirection.SWTICH_NORTH_RIGHT);
+      Sensor s4 = new Sensor(5, 9, SwitchDirection.SWTICH_NORTH_LEFT);
       ArrayList<Sensor> northSensors = new ArrayList<>();
       northSensors.add(s3);
       northSensors.add(s4);
@@ -31,7 +31,7 @@ public class Lab1 {
 
       // Section 2
       // South
-      Sensor s5 = new Sensor(12, 10, SwitchDirection.SWTICH_SOUTH_LEFT);
+      Sensor s5 = new Sensor(12, 10, SwitchDirection.SWTICH_SOUTH_RIGHT);
       Sensor s6 = new Sensor(12, 9, SwitchDirection.SWTICH_SOUTH_LEFT);
       ArrayList<Sensor> southSensorsCS2 = new ArrayList<>();
       southSensorsCS2.add(s5);
