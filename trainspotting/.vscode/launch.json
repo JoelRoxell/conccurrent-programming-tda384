@@ -22,12 +22,12 @@
       "console": "internalConsole",
       "stopOnEntry": false,
       "mainClass": "se.chalmers.train.TrainApplication",
-      "args": "Lab1.map 5 0",
+      "args": "Lab1.map 0 0",
       "projectName": "train"
     },
     {
       "type": "java",
-      "name": "Debug (Attach)",
+      "name": "Debug (Attach)"
       "request": "attach",
       "hostName": "localhost",
       "port": "<debug port of remote debuggee>"

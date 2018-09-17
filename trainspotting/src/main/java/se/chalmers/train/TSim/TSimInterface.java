@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.concurrent.*;
 
+import se.chalmers.train.SwitchDirection;
+
 /**
  * The TSimInterface is the intended interface between TSim and the laboration.
  * It handles the extraction of information from TSim and provides methods for
@@ -194,7 +196,9 @@ public final class TSimInterface {
 	public synchronized void setSwitch(int xPos, int yPos, int switchDir) throws CommandException {
 
 		String output = "SetSwitch " + xPos + " " + yPos + (switchDir == SWITCH_LEFT ? " LeftSwitch" : " RightSwitch");
+
 		this.out.println(output);
+
 		if (debug)
 			this.err.print(output);
 
