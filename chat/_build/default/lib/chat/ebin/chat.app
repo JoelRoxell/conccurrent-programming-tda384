@@ -1,0 +1,12 @@
+{application,chat,
+             [{description,"An OTP application"},
+              {vsn,"0.1.0"},
+              {registered,[]},
+              {mod,{chat_app,[]}},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {modules,[cchat,chat_app,chat_sup,client,dummy_gui,genserver,
+                        grm,gui,lex,lexgrm,server,test,test_client]},
+              {maintainers,[]},
+              {licenses,["Apache 2.0"]},
+              {links,[]}]}.

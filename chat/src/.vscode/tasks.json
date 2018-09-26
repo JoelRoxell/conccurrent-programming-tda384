@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "command": "myCommand",
+  "tasks": [
+    {
+      "label": "rebar3 compile",
+      "type": "shell",
+      "command": "rebar3 compile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$erlang"]
+    }
+  ]
+}
