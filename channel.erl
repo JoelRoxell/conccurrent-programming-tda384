@@ -18,8 +18,8 @@ stop(Channel) ->
 % is receied by all the other clients part of that same 
 % conversation:
 send_to_members(Channel, Receivers, Nick, Msg) ->
-    io:format("inside send_to_members function~n"),
-    io:format("Receivers: ~p~n", [Receivers]),
+    io:format("4. inside send_to_members function~n"),
+    io:format("5. receivers: ~w~n", [Receivers]),
     dict:map(fun(_, S) -> 
         genserver:request(S#client_state.pid, {message_receive, Channel, Nick, Msg}) end,
     Receivers).
@@ -42,8 +42,8 @@ handle(S, {change_nick, Client, NewNick}) ->
     {reply, ok, S#channel_state{members = Members}};
 
 handle(S, {message_send, Nick, Channel, Msg}) ->
-    io:format("message received by channel~n"),
+    io:format("2. message received by channel~n"),
     Receivers = dict:erase(Nick, S#channel_state.members),
-    io:format("message distributed to members~n"),
+    io:format("3. message distributed to members~n"),
     send_to_members(Channel, Receivers, Nick, Msg),
     {reply, ok, S}.
