@@ -29,10 +29,12 @@ handle(S, {join, Channel}) ->
         {ok,_} ->
             {reply, {error, user_already_joined, "You've already joined"}, S};
         error ->
-            case catch(genserver:request(S#client_state.server, {join, S, Channel})) of
+            %io:format("1. join new channel~n"),
+            case catch(genserver:request(S#client_state.server, {join, S, self(), Channel})) of
                 {'EXIT', Reason} ->
                     {reply, {error, server_not_reached, Reason}, S};
                 Pid ->
+                    %io:format("5. store new channel in client's dict~n"),
                     Channels = dict:store(Channel, Pid, S#client_state.channels),
                     {reply, ok, S#client_state{channels = Channels}}
             end
@@ -53,7 +55,7 @@ handle(S, {leave, Channel}) ->
 handle(S, {message_send, Channel, Msg}) ->
     case dict:find(Channel, S#client_state.channels) of
         {ok, Pid} ->
-            io:format("1. send message to channel~n"),
+            %io:format("1. send message to channel~n"),
             genserver:request(Pid, {message_send, S#client_state.nick, Channel, Msg}),
             {reply, ok, S};
         error ->
@@ -80,9 +82,9 @@ handle(S, {nick, NewNick}) ->
 
 % Incoming message (from channel, to GUI):
 handle(S = #client_state{gui = GUI}, {message_receive, Channel, Nick, Msg}) ->
-    io:format("6. message from server received by client~n"),
+    %io:format("6. message from server received by client~n"),
     gen_server:call(GUI, {message_receive, Channel, Nick ++ "> " ++ Msg}),
-    io:format("7. message printed onto gui~n"),
+    %io:format("7. message printed onto gui~n"),
     {reply, ok, S};
 
 % Quit client via GUI:

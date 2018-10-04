@@ -18,18 +18,19 @@ stop(Channel) ->
 % is receied by all the other clients part of that same 
 % conversation:
 send_to_members(Channel, Receivers, Nick, Msg) ->
-    io:format("4. inside send_to_members function~n"),
-    io:format("5. receivers: ~w~n", [Receivers]),
-    dict:map(fun(_, S) -> 
-        genserver:request(S#client_state.pid, {message_receive, Channel, Nick, Msg}) end,
+    %io:format("4. inside send_to_members function~n"),
+    %io:format("5. receivers: ~w~n", [Receivers]),
+    dict:map(fun(_, Pid) -> 
+        genserver:request(Pid, {message_receive, Channel, Nick, Msg}) end,
     Receivers).
 
 % -----------------------------------------------------------------------------
 % THE HANDLE FUNCTION FOR THE CHANNEL SERVER
 % -----------------------------------------------------------------------------
 
-handle(S, {join, Client}) ->
-    Members = dict:store(Client#client_state.nick, Client, S#channel_state.members),
+handle(S, {join, Client, Pid}) ->
+    %io:format("4. add user to channel~n"),
+    Members = dict:store(Client#client_state.nick, Pid, S#channel_state.members),
     {reply, ok, S#channel_state{members = Members}};
 
 handle(S, {leave, Nick}) ->
@@ -42,8 +43,8 @@ handle(S, {change_nick, Client, NewNick}) ->
     {reply, ok, S#channel_state{members = Members}};
 
 handle(S, {message_send, Nick, Channel, Msg}) ->
-    io:format("2. message received by channel~n"),
+    %io:format("2. message received by channel~n"),
     Receivers = dict:erase(Nick, S#channel_state.members),
-    io:format("3. message distributed to members~n"),
+    %io:format("3. message distributed to members~n"),
     send_to_members(Channel, Receivers, Nick, Msg),
     {reply, ok, S}.
