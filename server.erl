@@ -2,7 +2,7 @@
 -export([start/1, stop/1, handle/2]).
 
 -record(server_state, {clients, channels}).
--record(client_state, {gui, nick, server, channels}).
+-record(client_state, {pid, gui, nick, server, channels}).
 
 % Start a new server process with the given name (do not 
 % change the signature):

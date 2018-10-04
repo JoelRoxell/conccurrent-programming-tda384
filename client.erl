@@ -2,11 +2,12 @@
 -export([handle/2, initial_state/3]).
 
 % The structure of the client state (add whatever fields you need):
--record(client_state, {gui, nick, server, channels}).
+-record(client_state, {pid, gui, nick, server, channels}).
 
 % Returns an initial state record (do not modify the signature):
 initial_state(Nick, GUIAtom, ServerAtom) ->
-    #client_state{gui = GUIAtom, nick = Nick, server = ServerAtom, channels = dict:new()}.
+    #client_state{pid = list_to_atom(Nick), gui = GUIAtom, nick = Nick, 
+                    server = ServerAtom, channels = dict:new()}.
 
 update_nick(Client, NewNick) ->
     dict:map(fun(_, Pid) -> 
@@ -52,7 +53,8 @@ handle(S, {leave, Channel}) ->
 handle(S, {message_send, Channel, Msg}) ->
     case dict:find(Channel, S#client_state.channels) of
         {ok, Pid} ->
-            genserver:request(Pid, {send, S#client_state.nick, Channel, Msg}),
+            io:format("send message to channel~n"),
+            genserver:request(Pid, {message_send, S#client_state.nick, Channel, Msg}),
             {reply, ok, S};
         error ->
             {reply, {error, user_not_joined, "You haven't joined"}, S}
@@ -78,7 +80,9 @@ handle(S, {nick, NewNick}) ->
 
 % Incoming message (from channel, to GUI):
 handle(S = #client_state{gui = GUI}, {message_receive, Channel, Nick, Msg}) ->
+    io:format("message from server received by client~n"),
     gen_server:call(GUI, {message_receive, Channel, Nick ++ "> " ++ Msg}),
+    io:format("message printed onto gui~n"),
     {reply, ok, S};
 
 % Quit client via GUI:
